@@ -1,0 +1,119 @@
+﻿// pragma's tell the compiler what the name of the functions are that can be called
+// they are specified in ORDER and in C# start at 0 and increment by one
+// we only have 1 function (CSMain) that can be called by our C# code but you can have many if you want
+#pragma kernel CSMain
+
+//////////////////////////////////////////////////
+// GLOBAL PARAMETERS
+/////////////////////////
+
+Texture2D<float4> Source;        // the incoming readonly texture
+RWTexture2D<float4> Destination; // the outgoing read/write texture 
+
+// camera transformations
+float4x4 _CameraToWorld;
+float4x4 _CameraInverseProjection;
+
+// the light position
+float3 _LightPosition;
+
+static const float maxDist = 200;
+static const float someSmallNumber = 0.0001f;
+
+// Shape data
+// This MUST be exactly the same order and size as the one defined in C#
+struct Shape {
+    
+    float3 position;
+    float3 size;
+    float3 colour;
+    int shapeType;
+    int operation;
+    float blendStrength;
+};
+
+// this is the buffer we connect our ComputeBuffer to 
+StructuredBuffer<Shape> shapes;
+int numShapes;
+
+// a Ray is simply a point and a direction in space
+struct Ray {
+    float3 origin;
+    float3 direction;
+};
+
+//////////////////////////////////////////////////
+// DISTANCE FUNCTIONS
+/////////////////////////
+float SphereDistance(float3 eye, float3 centre, float radius) {
+    return distance(eye, centre) - radius;
+}
+
+//////////////////////////////////////////////////
+// INTERFACE TO DISTANCE FUNCTIONS
+/////////////////////////
+float GetShapeDistance(Shape shape, float3 eye) {
+   
+    if (shape.shapeType == 0) {
+        return SphereDistance(eye, shape.position, shape.size.x);
+    }
+    
+    return maxDist;
+}
+
+//////////////////////////////////////////////////
+// RAY FUNCTIONS
+/////////////////////////
+Ray CreateRay(float3 origin, float3 direction) {
+    Ray ray;
+    ray.origin = origin;
+    ray.direction = direction;
+    return ray;
+}
+
+Ray CreateCameraRay(float2 uv) {
+    float3 origin = mul(_CameraToWorld, float4(0,0,0,1)).xyz;
+    float3 direction = mul(_CameraInverseProjection, float4(uv,0,1)).xyz;
+    direction = mul(_CameraToWorld, float4(direction,0)).xyz;
+    direction = normalize(direction);
+    return CreateRay(origin,direction);
+}
+
+// this returns the minimum distance to a point in the scene 
+float GetMinDistanceToSceneFromPoint(float3 p) {
+    return 0;
+}
+
+
+//////////////////////////////////////////////////
+// THE MAIN FUNCTION
+/////////////////////////
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    uint width,height;
+    Destination.GetDimensions(width, height);
+    float2 uv = id.xy / float2(width,height) * 2 - 1;  
+
+    Destination[id.xy] = Source[id.xy];
+
+    Ray ray = CreateCameraRay(uv);
+
+    float rayDistSoFar = 0;
+    int marchSteps = 0;
+
+    while (rayDistSoFar < maxDist) {
+        marchSteps++;
+        float dist = GetMinDistanceToSceneFromPoint(ray.origin);
+        
+        if (dist <= someSmallNumber) {
+
+            Destination[id.xy] = float4(200,200,0,1);
+            break;
+        }
+        
+        // step along the ray for the next iteration
+        ray.origin += ray.direction * dist;
+        rayDistSoFar += dist;
+    }
+}
