@@ -45,8 +45,37 @@ struct Ray {
 //////////////////////////////////////////////////
 // DISTANCE FUNCTIONS
 /////////////////////////
+
+float Blend(float a, float b, float k)
+{
+    float h = clamp(0.5 + 0.5*(b-a)/k, 0.0, 1.0);
+    float blendDst = lerp(b,a,h) - k*h*(1.0-h);
+    return blendDst;
+}
+
+// float3 Blend3D(float3 a, float3 b, float3 k)
+// {
+//     float3 h = clamp(float3(0.5) + 0.5*(b-a)/k, 0.0, 1.0);
+//     float3 blendDst = lerp(b,a,h) - k*h*(1.0-h);
+//     return blendDst;
+// }
+
 float SphereDistance(float3 eye, float3 centre, float radius) {
     return distance(eye, centre) - radius;
+}
+
+float CubeDistance(float3 eye, float3 centre, float3 size)
+{
+    float3 o = abs(eye - centre) - size;
+    float ud = length(max(o, 0));
+    float n = max(max(min(o.x,0), min(o.y,0)), min(o.z,0));
+    return ud+n;
+}
+
+float TorusDistance(float3 eye, float3 centre,  float2 t)
+{
+    float2 q = float2(length(centre.xz) - t.x, centre.y);
+    return length(q)-t.y;
 }
 
 //////////////////////////////////////////////////
@@ -56,6 +85,14 @@ float GetShapeDistance(Shape shape, float3 eye) {
    
     if (shape.shapeType == 0) {
         return SphereDistance(eye, shape.position, shape.size.x);
+    }
+    if (shape.shapeType == 1)
+    {
+        return CubeDistance(eye, shape.position, shape.size);
+    }
+    if (shape.shapeType == 2)
+    {
+        return TorusDistance(eye, shape.position, shape.size.xy);
     }
     
     return maxDist;
@@ -79,11 +116,76 @@ Ray CreateCameraRay(float2 uv) {
     return CreateRay(origin,direction);
 }
 
-// this returns the minimum distance to a point in the scene 
-float GetMinDistanceToSceneFromPoint(float3 p) {
-    return 0;
+float4 GetMinDistanceToSceneFromPointWColor(float3 p)
+{
+     // float4 returnData;
+    // returnData.w = maxDist;
+    float4 returnData;
+    returnData.w = maxDist;
+    returnData.xyz = float3(0.f, 0.f, 0.f);
+
+    for (int i = 0; i < numShapes; i++)
+    {
+        Shape shape = shapes[i];
+        float dist = GetShapeDistance(shape, p);
+        returnData.w = Blend(returnData.w, dist, shape.blendStrength);
+        if (dist == returnData.w)
+        {
+            returnData.xyz = shape.colour;
+        }
+    }
+
+    return returnData;
 }
 
+// this returns the minimum distance to a point in the scene 
+float GetMinDistanceToSceneFromPoint(float3 p) {
+
+    float finalDist = maxDist;
+
+    for (int i = 0; i < numShapes; i++)
+    {
+        Shape shape = shapes[i];
+        float dist = GetShapeDistance(shape, p);
+        finalDist = Blend(finalDist, dist, shape.blendStrength);
+    }
+
+    return finalDist;
+}
+
+
+float3 EstimateNormal(float3 p)
+{
+    float x = GetMinDistanceToSceneFromPoint(float3(p.x + someSmallNumber, p.y, p.z)) - GetMinDistanceToSceneFromPoint(float3(p.x - someSmallNumber, p.y, p.z));
+    float y = GetMinDistanceToSceneFromPoint(float3(p.x, p.y + someSmallNumber, p.z)) - GetMinDistanceToSceneFromPoint(float3(p.x, p.y - someSmallNumber, p.z));
+    float z = GetMinDistanceToSceneFromPoint(float3(p.x, p.y, p.z + someSmallNumber)) - GetMinDistanceToSceneFromPoint(float3(p.x, p.y, p.z - someSmallNumber));;
+
+    float3 normal = float3(x,y,z);
+    return normalize(normal);
+}
+
+float CalculateShadow(Ray ray, float distToLight)
+{
+    float rayDist = 0.f;
+    float shadowIntensity = 0.2f;
+    float brightness = 1.f;
+
+    while(rayDist < distToLight)
+    {
+        float dist = GetMinDistanceToSceneFromPoint(ray.origin);
+
+        if (dist <= someSmallNumber)
+        {
+            return shadowIntensity;
+        }
+
+        brightness = min(brightness, dist*2000);
+        ray.origin += ray.direction*dist;
+        rayDist += dist;
+    }
+
+    return shadowIntensity + (1-shadowIntensity)*brightness;
+}
 
 //////////////////////////////////////////////////
 // THE MAIN FUNCTION
@@ -104,11 +206,26 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 
     while (rayDistSoFar < maxDist) {
         marchSteps++;
-        float dist = GetMinDistanceToSceneFromPoint(ray.origin);
+        float4 data = GetMinDistanceToSceneFromPointWColor(ray.origin);
+        float dist = data.w;
         
         if (dist <= someSmallNumber) {
+            float3 pointOnSurface = ray.origin + ray.direction*dist;
+            float3 normal = EstimateNormal(pointOnSurface - ray.direction*someSmallNumber);
+            normal = normalize(normal);
 
-            Destination[id.xy] = float4(200,200,0,1);
+            float3 lightDir = normalize(_LightPosition - ray.origin);
+            float lighting = saturate(dot(normal, lightDir));
+            
+            float3 offsetPos = pointOnSurface + (normal*someSmallNumber);
+            float3 dirToLight = normalize(_LightPosition - offsetPos);
+            ray.origin = offsetPos;
+            ray.direction = dirToLight;
+            float distanceToLight = distance(offsetPos, _LightPosition);
+            float shadowFactor = CalculateShadow(ray, distanceToLight);
+
+
+            Destination[id.xy] = float4(data.xyz * lighting * shadowFactor,1);
             break;
         }
         

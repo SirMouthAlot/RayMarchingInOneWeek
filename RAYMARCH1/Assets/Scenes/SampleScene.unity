@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 309888447}
   - component: {fileID: 309888446}
   m_Layer: 0
-  m_Name: GameObject (3)
+  m_Name: Sphere 3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -151,8 +151,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shapeType: 0
   operation: 0
-  colour: {r: 1, g: 1, b: 1, a: 1}
-  blendStrength: 0.469
+  colour: {r: 0, g: 0.8235421, b: 0.9056604, a: 1}
+  blendStrength: 0.647
   isAnimated: 0
   animX: 0
   animY: 0.01
@@ -165,7 +165,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 309888445}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.1, y: -2.69, z: 1.8}
+  m_LocalPosition: {x: 2.891, y: 3, z: 0.15}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -182,7 +182,7 @@ GameObject:
   - component: {fileID: 386276184}
   - component: {fileID: 386276183}
   m_Layer: 0
-  m_Name: GameObject (1)
+  m_Name: Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -202,11 +202,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shapeType: 1
   operation: 0
-  colour: {r: 1, g: 1, b: 1, a: 1}
-  blendStrength: 0.718
+  colour: {r: 1, g: 0, b: 0, a: 1}
+  blendStrength: 0.74
   isAnimated: 0
   animX: 0
-  animY: 0.01
+  animY: 0.001
   animZ: 0
 --- !u!4 &386276184
 Transform:
@@ -216,11 +216,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 386276182}
   m_LocalRotation: {x: -0.055046402, y: -0.017763898, z: -0.026803058, w: 0.99796593}
-  m_LocalPosition: {x: -9.96, y: -7.85, z: 4.33}
-  m_LocalScale: {x: 65.470184, y: 0.48621526, z: 102.92982}
+  m_LocalPosition: {x: -9.96, y: -3.54, z: 4.33}
+  m_LocalScale: {x: 65.470184, y: 3.19, z: 102.92982}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: -6.3630004, y: -1.8740001, z: -2.973}
 --- !u!1 &466947492
 GameObject:
@@ -233,7 +233,7 @@ GameObject:
   - component: {fileID: 466947494}
   - component: {fileID: 466947493}
   m_Layer: 0
-  m_Name: GameObject (2)
+  m_Name: Sphere 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -253,7 +253,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shapeType: 0
   operation: 0
-  colour: {r: 1, g: 1, b: 1, a: 1}
+  colour: {r: 0.0047169924, g: 1, b: 0.24670747, a: 1}
   blendStrength: 0.077
   isAnimated: 1
   animX: 0
@@ -267,7 +267,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 466947492}
   m_LocalRotation: {x: 0.5825351, y: 0.17872626, z: 0.19364952, w: 0.7689016}
-  m_LocalPosition: {x: -4.3, y: -1.38, z: 1.49}
+  m_LocalPosition: {x: 3.69, y: 1.3, z: -3.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -346,7 +346,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 5.28e-43, y: 2.73e-43, z: 0, w: 2.8240658e+29}
+  m_BoundingSphereOverride: {x: 0, y: -0.5, z: 4.71, w: 4.2}
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
@@ -358,7 +358,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 705507993}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.5, y: 18.5, z: -19.2}
+  m_LocalPosition: {x: -0.5, y: 11.97, z: -1.03}
   m_LocalScale: {x: 0.5061, y: 0.5061, z: 0.5061}
   m_Children: []
   m_Father: {fileID: 0}
@@ -472,7 +472,7 @@ GameObject:
   - component: {fileID: 1373626559}
   - component: {fileID: 1373626558}
   m_Layer: 0
-  m_Name: GameObject (4)
+  m_Name: Sphere4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -492,8 +492,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shapeType: 0
   operation: 0
-  colour: {r: 1, g: 1, b: 1, a: 1}
-  blendStrength: 0.3
+  colour: {r: 0.9529412, g: 0.010054238, b: 0, a: 1}
+  blendStrength: 0.05
   isAnimated: 1
   animX: 0.02
   animY: 0.02
@@ -505,8 +505,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1373626557}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.86, y: 0.176, z: 0.6}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1.7859999, y: 3.151, z: 0.6}
   m_LocalScale: {x: 0.6513, y: 0.6513, z: 0.6513}
   m_Children: []
   m_Father: {fileID: 0}
@@ -523,7 +523,7 @@ GameObject:
   - component: {fileID: 2058780065}
   - component: {fileID: 2058780064}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Sphere 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -543,8 +543,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shapeType: 0
   operation: 0
-  colour: {r: 1, g: 1, b: 1, a: 1}
-  blendStrength: 0
+  colour: {r: 1, g: 0.13679248, b: 0.13679248, a: 1}
+  blendStrength: 1
   isAnimated: 0
   animX: 0
   animY: 0.01
@@ -557,9 +557,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2058780063}
   m_LocalRotation: {x: 0.0023119869, y: -0.14282908, z: 0.21394517, w: 0.96634465}
-  m_LocalPosition: {x: -0.53, y: 2.13, z: -2.69}
+  m_LocalPosition: {x: -0.53, y: 0.4, z: -2.69}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 3.7600002, y: -16.001001, z: 24.439001}
