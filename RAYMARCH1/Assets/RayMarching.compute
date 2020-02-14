@@ -16,6 +16,7 @@ float4x4 _CameraInverseProjection;
 
 // the light position
 float3 _LightPosition;
+float _LightIntensity;
 
 static const float maxDist = 200;
 static const float someSmallNumber = 0.0001f;
@@ -74,9 +75,21 @@ float CubeDistance(float3 eye, float3 centre, float3 size)
 
 float TorusDistance(float3 eye, float3 centre,  float2 t)
 {
-    float2 q = float2(length(centre.xz) - t.x, centre.y);
+    float3 temp = abs(eye - centre);
+    float2 q = float2(length(temp.xz) - t.x, temp.y);
     return length(q)-t.y;
 }
+
+float EllipsoidDistance(float3 eye, float3 centre, float3 rad)
+{
+    float3 temp = abs(eye - centre);
+
+    float k0 = length(temp/rad);
+    float k1 = length(temp/(rad*rad));
+    return k0*(k0-1.0)/k1;
+}
+
+
 
 //////////////////////////////////////////////////
 // INTERFACE TO DISTANCE FUNCTIONS
@@ -94,6 +107,11 @@ float GetShapeDistance(Shape shape, float3 eye) {
     {
         return TorusDistance(eye, shape.position, shape.size.xy);
     }
+    if (shape.shapeType == 3)
+    {
+        return EllipsoidDistance(eye, shape.position, shape.size);
+    }
+
     
     return maxDist;
 }
@@ -215,7 +233,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
             normal = normalize(normal);
 
             float3 lightDir = normalize(_LightPosition - ray.origin);
-            float lighting = saturate(dot(normal, lightDir));
+            float lighting = saturate(dot(normal, lightDir)) * _LightIntensity;
             
             float3 offsetPos = pointOnSurface + (normal*someSmallNumber);
             float3 dirToLight = normalize(_LightPosition - offsetPos);

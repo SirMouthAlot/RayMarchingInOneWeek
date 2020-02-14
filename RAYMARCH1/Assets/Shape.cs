@@ -5,7 +5,7 @@ using UnityEngine;
 // this is just a simple shape that contains a bit of information on blending operation and type for our compute shader
 public class Shape : MonoBehaviour
 {
-    public enum ShapeType {Sphere,Cube,Torus};
+    public enum ShapeType {Sphere,Cube,Torus,Ellipsoid};
     public enum Operation {None, Blend, Cut,Mask}
 
     public ShapeType shapeType;
@@ -13,7 +13,7 @@ public class Shape : MonoBehaviour
     public Color colour = Color.white;
 
     [Range(0,1)]
-    public float blendStrength;
+    public float blendStrength = 0.5f;
     public bool isAnimated = false;
 
     [Range(0,0.5f)]

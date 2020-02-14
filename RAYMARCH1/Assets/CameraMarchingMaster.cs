@@ -93,7 +93,7 @@ public class CameraMarchingMaster : MonoBehaviour {
         raymarching.SetMatrix ("_CameraToWorld", cam.cameraToWorldMatrix);
         raymarching.SetMatrix ("_CameraInverseProjection", cam.projectionMatrix.inverse);
         raymarching.SetVector ("_LightPosition", lightSource.transform.position);
-
+        raymarching.SetFloat  ("_LightIntensity", lightSource.intensity);
     }
 
     // create a texture target to render to
