@@ -47,19 +47,41 @@ struct Ray {
 // DISTANCE FUNCTIONS
 /////////////////////////
 
-float Blend(float a, float b, float k)
+float SmoothUnion(float a, float b, float k)
 {
     float h = clamp(0.5 + 0.5*(b-a)/k, 0.0, 1.0);
-    float blendDst = lerp(b,a,h) - k*h*(1.0-h);
-    return blendDst;
+    float smoothUnionDst = lerp(b,a,h) - k*h*(1.0-h);
+    return smoothUnionDst;
 }
 
-// float3 Blend3D(float3 a, float3 b, float3 k)
-// {
-//     float3 h = clamp(float3(0.5) + 0.5*(b-a)/k, 0.0, 1.0);
-//     float3 blendDst = lerp(b,a,h) - k*h*(1.0-h);
-//     return blendDst;
-// }
+float SmoothSubtraction(float a, float b, float k)
+{
+    float h = clamp(0.5 - 0.5*(a+b)/k, 0.0, 1.0);
+    float smoothSubtractionDst = lerp(b, -a, h) + k*h*(1.0-h);
+    return smoothSubtractionDst;
+}
+
+float SmoothIntersection(float a, float b, float k)
+{
+    float h = clamp(0.5 - 0.5*(b-a)/k, 0.0, 1.0);
+    float smoothIntersectionDst = lerp(b, a, h) + k*h*(1.0-h);
+    return smoothIntersectionDst;
+}
+
+float Union(float d1, float d2)
+{
+    return min(d1, d2);
+}
+
+float Subtraction(float d1, float d2)
+{
+    return max(-d1,d2);
+}
+
+float Intersection(float d1, float d2)
+{
+    return max(d1, d2);
+}
 
 float SphereDistance(float3 eye, float3 centre, float radius) {
     return distance(eye, centre) - radius;
@@ -76,6 +98,7 @@ float CubeDistance(float3 eye, float3 centre, float3 size)
 float TorusDistance(float3 eye, float3 centre,  float2 t)
 {
     float3 temp = abs(eye - centre);
+    
     float2 q = float2(length(temp.xz) - t.x, temp.y);
     return length(q)-t.y;
 }
@@ -134,6 +157,38 @@ Ray CreateCameraRay(float2 uv) {
     return CreateRay(origin,direction);
 }
 
+float ApplyOperation(float finalDist, float dist, float blendStrength, int operation)
+{
+    float temp;
+
+    switch(operation)
+    {
+        case 0:     //Operation None (defaults to union)
+        temp = Union(finalDist, dist);
+        break;
+        case 1:     //Operation Union
+        temp = Union(finalDist, dist);
+        break;
+        case 2:     //Operation Subtraction
+        temp = Subtraction(finalDist, dist);
+        break;
+        case 3:     //Operation Intersection
+        temp = Intersection(dist, finalDist);
+        break;
+        case 4:     //Operation Smooth Union
+        temp = SmoothUnion(finalDist, dist, blendStrength);
+        break;
+        case 5:     //Operation Smooth Subtraction
+        temp = SmoothSubtraction(finalDist, dist, blendStrength);
+        break;
+        case 6:     //Operation Smooth Intersection
+        temp = SmoothIntersection(finalDist, dist, blendStrength);
+        break;
+    }
+    
+    return temp;
+}
+
 float4 GetMinDistanceToSceneFromPointWColor(float3 p)
 {
      // float4 returnData;
@@ -146,7 +201,7 @@ float4 GetMinDistanceToSceneFromPointWColor(float3 p)
     {
         Shape shape = shapes[i];
         float dist = GetShapeDistance(shape, p);
-        returnData.w = Blend(returnData.w, dist, shape.blendStrength);
+        returnData.w = ApplyOperation(returnData.w, dist, shape.blendStrength, shape.operation);
         if (dist == returnData.w)
         {
             returnData.xyz = shape.colour;
@@ -165,7 +220,7 @@ float GetMinDistanceToSceneFromPoint(float3 p) {
     {
         Shape shape = shapes[i];
         float dist = GetShapeDistance(shape, p);
-        finalDist = Blend(finalDist, dist, shape.blendStrength);
+        finalDist = ApplyOperation(finalDist, dist, shape.blendStrength, shape.operation);
     }
 
     return finalDist;

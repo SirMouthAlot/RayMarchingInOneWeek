@@ -6,7 +6,7 @@ using UnityEngine;
 public class Shape : MonoBehaviour
 {
     public enum ShapeType {Sphere,Cube,Torus,Ellipsoid};
-    public enum Operation {None, Blend, Cut,Mask}
+    public enum Operation {None, Union, Subtraction, Intersection, Smooth_Union, Smooth_Subtraction, Smooth_Intersection}
 
     public ShapeType shapeType;
     public Operation operation;
